@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<!--[if IE 8]>
+<html id="ie8" lang="en">
+<![endif]-->
+<!--[if !(IE 8)]><!-->
+<html lang="en">
+<!--<![endif]-->
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Anna Schuleit Haber</title>
+	<link rel="canonical" href="https://anna-haber.com" />
+<link rel="profile" href="http://gmpg.org/xfn/11"/>
+<link rel="pingback" href="https://anna-haber.com/xmlrpc.php"/>
+<!--[if lt IE 9]>
+<script src="https://s2.wp.com/wp-content/themes/pub/oxygen/js/html5.js" type="text/javascript"></script>
+<![endif]-->
+<!-- Async WordPress.com Remote Login -->
+<script id="wpcom_remote_login_js">
+var wpcom_remote_login_extra_auth = '';
+function wpcom_remote_login_remove_dom_node_id( element_id ) {
+	var dom_node = document.getElementById( element_id );
+	if ( dom_node ) { dom_node.remove(); }
+}
+function wpcom_remote_login_remove_dom_node_classes( class_name ) {
+	var dom_nodes = document.querySelectorAll( '.' + class_name );
+	for ( var i = 0; i < dom_nodes.length; i++ ) {
+		dom_nodes[i].remove();
+	}
+}
+function wpcom_remote_login_final_cleanup() {
+	wpcom_remote_login_remove_dom_node_classes( "wpcom_remote_login_msg" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_key" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_validate" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_js" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_request_access_iframe" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_request_access_styles" );
+}
+// Watch for messages back from the remote login
+window.addEventListener( "message", function( e ) {
+	if ( e.origin === "https://r-login.wordpress.com" ) {
+		var data = {};
+		try {
+			data = JSON.parse( e.data );
+		} catch( e ) {
+			wpcom_remote_login_final_cleanup();
+			return;
+		}
+		if ( data.msg === 'LOGIN' ) {
+			// Clean up the login check iframe
+			wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_key" );
+			var id_regex = new RegExp( /^[0-9]+$/ );
+			var token_regex = new RegExp( /^.*|.*|.*$/ );
+			if (
+				token_regex.test( data.token )
+				&& id_regex.test( data.wpcomid )
+			) {
+				// We have everything we need to ask for a login
+				var script = document.createElement( "script" );
+				script.setAttribute( "id", "wpcom_remote_login_validate" );
+				script.src='remote-login_wpcom_remote_login-validate/'
+					+ '&wpcomid=' + data.wpcomid
+					+ '&token=' + encodeURIComponent( data.token )
+					+ '&host=' + window.location.protocol
+						+ '//' + window.location.hostname;
+				document.body.appendChild( script );
+			}
+			return;
+		}
+		// Safari ITP, not logged in, so redirect
+		if ( data.msg === 'LOGIN-REDIRECT' ) {
+			+ window.location.href;
+			return;
+		}
+		// Safari ITP, storage access failed, remove the request
+		if ( data.msg === 'LOGIN-REMOVE' ) {
+			var css_zap = 'html { -webkit-transition: margin-top 1s; transition: margin-top 1s; } /* 9001 */ html { margin-top: 0 !important; } * html body { margin-top: 0 !important; } @media screen and ( max-width: 782px ) { html { margin-top: 0 !important; } * html body { margin-top: 0 !important; } }';
+			var style_zap = document.createElement( 'style' );
+			style_zap.type = 'text/css';
+			style_zap.appendChild( document.createTextNode( css_zap ) );
+			document.body.appendChild( style_zap );
+			var e = document.getElementById( 'wpcom_request_access_iframe' );
+			e.parentNode.removeChild( e );
+			document.cookie = 'wordpress_com_login_access=denied; path=/; max-age=31536000';
+			return;
+		}
+		// Safari ITP
+		if ( data.msg === 'REQUEST_ACCESS' ) {
+			console.log( 'request access: safari' );
+			// Check ITP iframe enable/disable knob
+			if ( wpcom_remote_login_extra_auth !== 'safari_itp_iframe' ) {
+				return;
+			}
+			// If we are in a "private window" there is no ITP.
+			var private_window = false;
+			try {
+				var opendb = window.openDatabase( null, null, null, null );
+			} catch( e ) {
+				private_window = true;
+			}
+			if ( private_window ) {
+				console.log( 'private window' );
+				return;
+			}
+			var iframe = document.createElement( 'iframe' );
+			iframe.id = 'wpcom_request_access_iframe';
+			iframe.setAttribute( 'scrolling', 'no' );
+			iframe.setAttribute( 'sandbox', 'allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-top-navigation-by-user-activation' );
+			iframe.src = 'https://r-login.wordpress.com/remote-login.php?wpcom_remote_login=request_access&origin=' + encodeURIComponent( data.origin ) + '&wpcomid=' + encodeURIComponent( data.wpcomid );
+			var css = 'html { -webkit-transition: margin-top 1s; transition: margin-top 1s; } /* 9001 */ html { margin-top: 46px !important; } * html body { margin-top: 46px !important; } @media screen and ( max-width: 660px ) { html { margin-top: 71px !important; } * html body { margin-top: 71px !important; } #wpcom_request_access_iframe { display: block; height: 71px !important; } } #wpcom_request_access_iframe { border: 0px; height: 46px; position: fixed; top: 0; left: 0; width: 100%; min-width: 100%; z-index: 99999; background: #23282d; } ';
+			var style = document.createElement( 'style' );
+			style.type = 'text/css';
+			style.id = 'wpcom_request_access_styles';
+			style.appendChild( document.createTextNode( css ) );
+			document.body.appendChild( style );
+			document.body.appendChild( iframe );
+		}
+		if ( data.msg === 'DONE' ) {
+			wpcom_remote_login_final_cleanup();
+		}
+	}
+}, false );
+// Inject the remote login iframe after the page has had a chance to load
+// more critical resources
+window.addEventListener( "DOMContentLoaded", function( e ) {
+	var iframe = document.createElement( "iframe" );
+	iframe.style.display = "none";
+	iframe.setAttribute( "scrolling", "no" );
+	iframe.setAttribute( "id", "wpcom_remote_login_key" );
+	iframe.src = "https://r-login.wordpress.com/remote-login.php"
+		+ "?wpcom_remote_login=key"
+		+ "&origin=aHR0cHM6Ly9hbm5hLWhhYmVyLmNvbQ%3D%3D"
+		+ "&wpcomid=32996288"
+		+ "&time=1585645452";
+	document.body.appendChild( iframe );
+}, false );
+</script>
+<link rel="dns-prefetch" href="https://s2.wp.com/"/>
+<link rel="dns-prefetch" href="https://s0.wp.com/"/>
+<link rel="dns-prefetch" href="https://s1.wp.com/"/>
+<link rel="dns-prefetch" href="https://annaschuleit.wordpress.com/"/>
+<link rel="dns-prefetch" href="https://fonts.googleapis.com/"/>
+	<script type="text/javascript">
+		/* <![CDATA[ */
+		function addLoadEvent(func) {
+			var oldonload = window.onload;
+			if (typeof window.onload != 'function') {
+				window.onload = func;
+			} else {
+				window.onload = function () {
+					oldonload();
+					func();
+				}
+			}
+		}
+		/* ]]> */
+	</script>
+			<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s0.wp.com\/wp-content\/mu-plugins\/wpcom-smileys\/twemoji\/2\/72x72\/","ext":".png","svgUrl":"https:\/\/s0.wp.com\/wp-content\/mu-plugins\/wpcom-smileys\/twemoji\/2\/svg\/","svgExt":".svg","source":{"concatemoji":"wp-includes/js/wp-emoji-release.min-m-1582709031h-ver-5.4-RC1-47426.js"}};
+			/*! This file is auto-generated */
+			!function(e,a,t){var r,n,o,i,p=a.createElement("canvas"),s=p.getContext&&p.getContext("2d");function c(e,t){var a=String.fromCharCode;s.clearRect(0,0,p.width,p.height),s.fillText(a.apply(this,e),0,0);var r=p.toDataURL();return s.clearRect(0,0,p.width,p.height),s.fillText(a.apply(this,t),0,0),r===p.toDataURL()}function l(e){if(!s||!s.fillText)return!1;switch(s.textBaseline="top",s.font="600 32px Arial",e){case"flag":return!c([127987,65039,8205,9895,65039],[127987,65039,8203,9895,65039])&&(!c([55356,56826,55356,56819],[55356,56826,8203,55356,56819])&&!c([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]));case"emoji":return!c([55357,56424,55356,57342,8205,55358,56605,8205,55357,56424,55356,57340],[55357,56424,55356,57342,8203,55358,56605,8203,55357,56424,55356,57340])}return!1}function d(e){var t=a.createElement("script");t.src=e,t.defer=t.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(t)}for(i=Array("flag","emoji"),t.supports={everything:!0,everythingExceptFlag:!0},o=0;o<i.length;o++)t.supports[i[o]]=l(i[o]),t.supports.everything=t.supports.everything&&t.supports[i[o]],"flag"!==i[o]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[i[o]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(n=function(){t.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",n,!1),e.addEventListener("load",n,!1)):(e.attachEvent("onload",n),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&t.readyCallback()})),(r=t.source||{}).concatemoji?d(r.concatemoji):r.wpemoji&&r.twemoji&&(d(r.twemoji),d(r.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+	<link rel="stylesheet" id="all-css-0-1" href="css/OvoX28/TIlD49SiXnqo69cbcgqtb3rDrVq5UruV7Xv1R8LfBafpglL3U-a1wlfNml06MvYPWy7kDBmSkgkyult9oLfCkgr9-KfVXNqVNOcVHu-An1CEes--cssminify-yes.css" type="text/css" media="all"/>
+<style id="wp-block-library-inline-css">
+.has-text-align-justify {
+	text-align:justify;
+}
+</style>
+<link rel="stylesheet" id="screen-css-1-1" href="wp-content/themes/pub/oxygen/style-m-1499391730h-cssminify-yes.css" type="text/css" media="screen"/>
+<link rel="stylesheet" id="font-abel-css" href="//fonts.googleapis.com/css?family=Abel&amp;ver=20120821" media="all"/>
+<link rel="stylesheet" id="all-css-4-1" href="css/Q3oA/Gj3t0pDawK-mwvDbzgx7xfq2r6tLcqrp5vQHdVX9--cssminify-yes.css" type="text/css" media="all"/>
+<link rel="stylesheet" id="print-css-5-1" href="wp-content/mu-plugins/global-print/global-print-m-1465851035h-cssminify-yes.css" type="text/css" media="print"/>
+<link rel="stylesheet" id="all-css-6-1" href="css/bGNCVgsYIeXLL02MrQZRZVJ4s9cGP7yXiZWyrOHqdfKcf8e6xEcyHNcc73Aa7tRZvKaGMqXd7fpWh9PQ--_cssminify-yes_css_trx7jj55futwdtcxiw3qjh.css" type="text/css" media="all"/>
+<style id="jetpack-global-styles-frontend-style-inline-css">
+:root { --font-headings: unset; --font-base: unset; --font-headings-default: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif; --font-base-default: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;}
+</style>
+<script type="text/javascript" src="_static/---eJx9zUsKgDAMBNALWYtIixvxLH6itJhUmxTx9lbQnQgDs5gHo49NORrXNAFrn7MniOdTpedC/wGFbom9QImOXjwGEiC57RZYEJj7BT5WDINbQSWGmAFJvplDdh22lTFNbaw1tb8AOGU7DA--.js"></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://annaschuleit.wordpress.com/xmlrpc.php?rsd"/>
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://s1.wp.com/wp-includes/wlwmanifest.xml"/> 
+<meta name="generator" content="WordPress.com"/>
+<link rel="shortlink" href="https://wp.me/P2erQc-y"/>
+<!-- Jetpack Open Graph Tags -->
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Anna Schuleit Haber"/>
+<meta property="og:url" content="https://anna-haber.com/"/>
+<meta property="og:site_name" content="Anna Schuleit Haber"/>
+<meta property="og:image" content="2012/02/10683560_10152491702008300_4676130024607390797_o.jpg"/>
+<meta property="og:image:width" content="1296"/>
+<meta property="og:image:height" content="626"/>
+<meta property="og:image:alt" content="Anna Schuleit Haber: The Voice Imitator"/>
+<meta property="og:locale" content="en_US"/>
+<meta name="twitter:creator" content="@schuleithaber"/>
+<meta name="twitter:site" content="@schuleithaber"/>
+<meta name="twitter:text:title" content="About"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:description" content="Post by @schuleithaber."/>
+<meta property="article:publisher" content="https://www.facebook.com/WordPresscom"/>
+<!-- End Jetpack Open Graph Tags -->
+<link rel="shortcut icon" type="image/x-icon" href="blavatar/0b96bcc726611bb19503cb176eb3882d-s-32.jpg" sizes="16x16"/>
+<link rel="icon" type="image/x-icon" href="blavatar/0b96bcc726611bb19503cb176eb3882d-s-32.jpg" sizes="16x16"/>
+<link rel="apple-touch-icon" href="blavatar/0b96bcc726611bb19503cb176eb3882d-s-114.jpg"/>
+<link rel="openid.server" href="https://anna-haber.com/?openidserver=1"/>
+<link rel="openid.delegate" href="/"/>
+<link rel="search" type="application/opensearchdescription+xml" href="https://anna-haber.com/osd.xml" title="Anna Schuleit Haber"/>
+<link rel="search" type="application/opensearchdescription+xml" href="https://s1.wp.com/opensearch.xml" title="WordPress.com"/>
+<meta name="theme-color" content="#ffffff"/>
+	<style type="text/css">
+		#page {
+			background-color: #ffffff		}
+	</style>
+	<style>
+		html {
+			font-size: 16px;
+		}
+		h1, h2, h3, h4, h5, h6, dl dt, blockquote, blockquote blockquote blockquote, .site-title, .main-navigation a, .widget_calendar caption {
+			font-family: 'Abel', sans-serif;
+		}
+		.error, .entry-title a, .entry-content a, entry-summary a, .main-navigation > div > ul > li > a, .widget a, .post-navigation a, #image-navigation a, .pingback a, .logged-in-as a, .more-articles .entry-title a:hover, .widget_flickr #flickr_badge_uber_wrapper a {
+			color: #0da4d3;
+		}
+		a:hover, .comment-meta a, .comment-meta a:visited {
+			border-color: #0da4d3;
+		}
+		a.read-more, a.read-more:visited, .pagination a:hover, .comment-navigation a:hover, button, html input[type="button"], input[type="reset"], input[type="submit"], #infinite-handle span {
+			background-color: #0da4d3;
+		}
+	</style>
+<meta name="application-name" content="Anna Schuleit Haber"/><meta name="msapplication-window" content="width=device-width;height=device-height"/><meta name="msapplication-task" content="name=Subscribe;action-uri=https://anna-haber.com/feed/;icon-uri=https://secure.gravatar.com/blavatar/0b96bcc726611bb19503cb176eb3882d?s=16"/><meta name="msapplication-task" content="name=Sign up for a free blog;action-uri=http://wordpress.com/signup/;icon-uri=https://s1.wp.com/i/favicon.ico"/><meta name="msapplication-task" content="name=WordPress.com Support;action-uri=http://support.wordpress.com/;icon-uri=https://s1.wp.com/i/favicon.ico"/><meta name="msapplication-task" content="name=WordPress.com Forums;action-uri=http://forums.wordpress.com/;icon-uri=https://s1.wp.com/i/favicon.ico"/><meta name="description" content="undefined"/>
+<style type="text/css" id="custom-colors-css">.menu-secondary li a:hover{background-color:#000}.menu-secondary li a:hover{background-color:rgba(0,0,0,.2)}.menu-secondary li{border-color:#252525}.menu-secondary li{border-color:rgba(37,37,37,.1)}.menu-secondary li a,.menu-secondary li.current-menu-item li a,.menu-secondary li.current-page-item li a{color:#ccc}.menu-secondary li li a{color:#888}.menu-secondary li.current-menu-item a,.menu-secondary li.current-page-item a{color:#848484}.menu-secondary li.current-menu-item li a:hover,.menu-secondary li.current-page-item li a:hover{color:#fff}body{background-color:#f4f4f4}.error,.entry-title a,.entry-content a,entry-summary a,.main-navigation>div>ul>li>a,.widget a,.post-navigation a,#image-navigation a,.pingback a,.logged-in-as a,.more-articles .entry-title a:hover,.widget_flickr #flickr_badge_uber_wrapper a{color:#026f90}a:hover,.comment-meta a,.comment-meta a:visited{border-color:#026f90}a.read-more,a.read-more:visited,.pagination a:hover,.comment-navigation a:hover,button,html input[type=button],input[type=reset],input[type=submit],#infinite-handle span{background-color:#026f90}.entry-title a:hover,.entry-meta a:hover,.page-links a:hover,.comment-meta a:hover,.widget ul li a:hover,.widget_flickr #flickr_badge_uber_wrapper a:hover{color:#000}.menu-secondary,.menu-secondary li,.menu-secondary li a{background-color:#111}</style>
+</head>
+<body class="home page-template-default page page-id-34 no-js customizer-styles-applied highlander-enabled highlander-light custom-colors">
+<div id="page" class="hfeed site">
+		<header id="masthead" class="site-header" role="banner">
+		<hgroup>
+			<a href="/" class="site-logo-link" rel="home" itemprop="url"></a>			<h1 class="site-title"><a href="/" title="Anna Schuleit Haber" rel="home">Anna Schuleit Haber</a></h1>
+			<h2 class="site-description"></h2>
+		</hgroup>
+		<nav role="navigation" class="site-navigation main-navigation clear-fix">
+			<h1 class="assistive-text">Main Menu</h1>
+			<div class="assistive-text skip-link"><a href="#content" title="Skip to content">Skip to content</a></div>
+			<div class="menu-test-container"><ul id="menu-test" class="menu"><li id="menu-item-108" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-34 current_page_item current-menu-ancestor current-menu-parent current_page_parent current_page_ancestor menu-item-has-children menu-item-108"><a href="/" aria-current="page">&gt; About</a>
+<ul class="sub-menu">
+	<li id="menu-item-156" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-34 current_page_item menu-item-156"><a href="/" aria-current="page">Small Bio</a></li>
+	<li id="menu-item-501" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-501"><a target="_blank" rel="noopener noreferrer" href="http://www.lybba.org/blog/flowers-in-the-hospital-or-the-postmodern-archeology-of-anna-schuleit/">Interview with Lybba</a></li>
+	<li id="menu-item-300" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-300"><a href="misc-press-and-links/">Misc. Press and Links</a></li>
+	<li id="menu-item-70" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-70"><a href="interview2011/">Interview with Gwarlingo</a></li>
+</ul>
+</li>
+<li id="menu-item-97" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-97"><a target="_blank" rel="noopener noreferrer">&gt; Large-Scale Commissions + Projects</a>
+<ul class="sub-menu">
+	<li id="menu-item-1200" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1200"><a target="_blank" rel="noopener noreferrer" href="https://www.instagram.com/schuleithaber/">A Day-Tale (2017)</a></li>
+	<li id="menu-item-1201" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1201"><a target="_blank" rel="noopener noreferrer" href="https://www.pinterest.com/schuleithaber/the-black-variations-2015/">The Black Variations (2015)</a></li>
+	<li id="menu-item-1194" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1194"><a target="_blank" rel="noopener noreferrer" href="https://vimeo.com/schuleithaber/thealphabet">The Alphabet (2015)</a></li>
+	<li id="menu-item-150" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-150"><a target="_blank" rel="noopener noreferrer" href="http://voiceimitator.wordpress.com/">The Voice Imitator (2013-17)</a></li>
+	<li id="menu-item-1206" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1206"><a target="_blank" rel="noopener noreferrer" href="https://www.pinterest.com/schuleithaber/set-designs-%2B-live-drawings/">Set design for dance (2012)</a></li>
+	<li id="menu-item-155" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-155"><a href="room-for-five-2012/">Room for Five (2012)</a></li>
+	<li id="menu-item-385" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-385"><a target="_blank" rel="noopener noreferrer" href="https://vimeo.com/schuleithaber/justarumor">Just a Rumor (2010)</a></li>
+	<li id="menu-item-379" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-379"><a>Inter’tidal (2007)</a></li>
+	<li id="menu-item-378" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-378"><a target="_blank" rel="noopener noreferrer" href="https://vimeo.com/schuleithaber/landlines">Landlines (2007)</a></li>
+	<li id="menu-item-377" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-377"><a target="_blank" rel="noopener noreferrer" href="https://www.pinterest.com/schuleithaber/bloom-2003/">Bloom (2003)</a></li>
+	<li id="menu-item-381" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-381"><a>When at Last (2001)</a></li>
+	<li id="menu-item-382" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-382"><a target="_blank" rel="noopener noreferrer" href="https://youtu.be/zg4jOBR083I?t=3s">Habeas Corpus (2000)</a></li>
+</ul>
+</li>
+<li id="menu-item-139" class="menu-item menu-item-type-post_type menu-item-object-post menu-item-139"><a href="2014/11/06/new-work-3/">&gt; Studio Work</a></li>
+<li id="menu-item-614" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-614"><a href="interview-with-tift-merritt/">&gt; Interview</a></li>
+<li id="menu-item-170" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-170"><a href="essay-by-mark-wethli-2009/">&gt; Essay</a></li>
+<li id="menu-item-597" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-597"><a href="catalogue-two-people-ago/">&gt; Catalogue</a></li>
+<li id="menu-item-77" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-77"><a href="contact/">&gt; Contact + Order</a></li>
+</ul></div>		</nav>
+	</header><!-- #masthead .site-header -->
+	<div id="main" class="clear-fix">
+		<div id="primary" class="site-content">
+			<div id="content" role="main">
+<article id="post-34" class="post-34 page type-page status-publish hentry">
+	<header class="entry-header">
+		<h1 class="entry-title">About</h1>
+	</header><!-- .entry-header -->
+	<div class="entry-content clear-fix">
+		<p><strong>NEWS UPDATE</strong></p>
+<p><strong>Anna’s works from <em>The Voice Imitator</em> series were recently on view at Art Central Hong Kong and at the Saatchi Gallery London. Her work &#8220;The Alphabet&#8221; has been included in the collection of the <span style="color:#333333;">Stedelijk Museum, Amsterdam.</span></strong></p>
+<p><span style="color:#333333;"><strong>Anna Schuleit Haber’s</strong> work lies at the intersection of painting, drawing, performance and installation art, architecture, and community. Her works have ranged from museum installations made with paint, to large-scale projects in forests, on uninhabited islands, and in psychiatric institutions, using extensive sound systems, live sod, thousands of flowers, mirrors, antique telephones, bodies of water, and neuroscience technologies. Current projects revolve around seriality and memory, and include large-scale drawing performances for architecture.</span></p>
+<p><span style="color:#333333;">Anna studied painting at the Rhode Island School of Design, creative writing at Dartmouth, and was a fellow at the Radcliffe Institute for Advanced Studies at Harvard. She was named a MacArthur Fellow for work that has “conceptual clarity, compassion, and beauty.”</span></p>
+<div data-shortcode="caption" id="attachment_324" style="width: 480px" class="wp-caption aligncenter"><a href="2012/03/anna-schuleit-by-john-solem.jpg"><img aria-describedby="caption-attachment-324" data-attachment-id="324" data-permalink="https://anna-haber.com/2014/11/06/new-work-3/anna-schuleit-by-john-solem/#main" data-orig-file="https://annaschuleit.files.wordpress.com/2012/03/anna-schuleit-by-john-solem.jpg" data-orig-size="700,925" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;0&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;0&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;0&quot;,&quot;iso&quot;:&quot;0&quot;,&quot;shutter_speed&quot;:&quot;0&quot;,&quot;title&quot;:&quot;&quot;}" data-image-title="Anna Schuleit Haber by John Solem" data-image-description="<p>Anna Schuleit Haber by John Solem</p>
+" data-medium-file="https://annaschuleit.files.wordpress.com/2012/03/anna-schuleit-by-john-solem.jpg?w=227" data-large-file="https://annaschuleit.files.wordpress.com/2012/03/anna-schuleit-by-john-solem.jpg?w=470" class="wp-image-324 size-large" src="2012/03/anna-schuleit-by-john-solem-w-470-h-621.jpg" alt="Anna Schuleit Haber, photo by John Solem" width="470" height="621" srcset="2012/03/anna-schuleit-by-john-solem-w-470-h-621.jpg 470w, 2012/03/anna-schuleit-by-john-solem-w-114-h-150.jpg 114w, 2012/03/anna-schuleit-by-john-solem-w-227-h-300.jpg 227w, 2012/03/anna-schuleit-by-john-solem.jpg 700w" sizes="(max-width: 470px) 100vw, 470px"/></a><p id="caption-attachment-324" class="wp-caption-text">Anna Schuleit Haber, photo by John Solem</p></div>
+<p><span style="color:#333333;">Anna has been a fellow at the MacDowell Colony, Bogliasco, Blue Mountain Center, The Hermitage, Yaddo, Banff, and a visiting artist / guest lecturer at Brown University, MIT, Smith College, Harvard’s Graduate School of Design, The New School, Brandeis, University of Michigan, McGill, RISD, Boston University, Pratt, Bowdoin, and Syracuse University.</span></p>
+<p><span style="color:#333333;">Her works have been shown at Coleman Burke Gallery, the Curator Gallery, and Sapar Contemporary in New York City, the Rhodes Art Center in Massachusetts, the Brattleboro Museum, Vermont, and at Mousonturm, Frankfurt. She has also created work at the Chocolate Factory, NYC, in a set-design for Ivy Baldwin Dance. </span><span style="color:#333333;">She was the visiting artist for the 2012 Benson Forum on Creativity at the Eastman School of Music, creating a project together with four young composers, <em>Room for Five</em>, based on four colors and their RGB-spectrum equivalent intervals in music. In 2012 she created a performance work for dance at New York Live Arts, NYC, using light to motion-fuse her line drawings with dancers in real time.</span></p>
+<p><span style="color:#333333;">Ongoing projects include <em>The Voice Imitator</em>, a creative collaboration based on the short prose by Thomas Bernhard, which won a 2013 NYFA award. In 2014, Anna gave her first commencement speech, <em>Believe the Bird</em>, and moved to New Orleans with her husband, <a style="color:#333333;" title="Anna Schuleit and Yotam Haber Wedding" href="http://www.nytimes.com/2013/05/12/fashion/weddings/anna-schuleit-and-yotam-haber-vows.html?pagewanted=all&amp;_r=0" target="_blank" rel="noopener">Yotam Haber</a>, a composer. Anna works and writings have been published in the Massachusetts Review, Virginia Quarterly, and Agni, and a selection of <em>The Voice Imitator</em> paintings was on view in a solo show at the gallery of the German Consulate NYC and in a two-person show at Sapar Contemporary in Tribeca, NYC.</span></p>
+<p><img data-attachment-id="1013" data-permalink="https://anna-haber.com/about-anna-schuleit-haber/img_20150831_180313/#main" data-orig-file="https://annaschuleit.files.wordpress.com/2012/02/img_20150831_180313.jpg" data-orig-size="1024,768" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;0&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;0&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;0&quot;,&quot;iso&quot;:&quot;0&quot;,&quot;shutter_speed&quot;:&quot;0&quot;,&quot;title&quot;:&quot;&quot;,&quot;orientation&quot;:&quot;0&quot;}" data-image-title="IMG_20150831_180313" data-image-description="" data-medium-file="https://annaschuleit.files.wordpress.com/2012/02/img_20150831_180313.jpg?w=300" data-large-file="https://annaschuleit.files.wordpress.com/2012/02/img_20150831_180313.jpg?w=470" class="alignnone size-full wp-image-1013" src="2012/02/img_20150831_180313-w-470.jpg" alt="IMG_20150831_180313" srcset="2012/02/img_20150831_180313-w-470.jpg 470w, 2012/02/img_20150831_180313-w-940.jpg 940w, 2012/02/img_20150831_180313-w-150.jpg 150w, 2012/02/img_20150831_180313-w-300.jpg 300w, 2012/02/img_20150831_180313-w-768.jpg 768w" sizes="(max-width: 470px) 100vw, 470px"/>Live Drawing Cycle, Dartmouth Biennial, Hood Museum Courtyard, 2015</p>
+<p><span style="color:#333333;">Recent commissions include a three-month cycle of live drawing performances transmitted from New Orleans to the Dartmouth Biennial in Hanover, NH, as well as a museum commission for Fitchburg, MA, in which Anna was embedded as a visiting artist in a daily newspaper for 26 days. Read more about it in <a style="color:#333333;" href="https://www.creativereview.co.uk/the-alphabet-a-collaborative-type-project" target="_blank" rel="noopener">Creative Review</a> (UK). The project received two New England Newspaper & Press Association awards.</span></p>
+<p><span style="color:#333333;">Anna’s works are included in numerous private collections in the US, Europe, Asia, and Australia, as well as in the Stedelijk Museum, Amsterdam. </span><span style="color:#333333;">She</span><span style="color:#333333;"> is based in New Orleans and New Hampshire. During Spring of 2020 she has been invited to teach in the Foundation Department at the Kansas City Art Institute.</span></p>
+<div data-shortcode="caption" id="attachment_318" style="width: 480px" class="wp-caption aligncenter"><a href="2012/03/anna-schuleit-painting.jpg"><img aria-describedby="caption-attachment-318" data-attachment-id="318" data-permalink="https://anna-haber.com/2014/11/06/new-work-3/anna-schuleit-painting/#main" data-orig-file="https://annaschuleit.files.wordpress.com/2012/03/anna-schuleit-painting.jpg" data-orig-size="700,505" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;5.6&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;Canon EOS 5D Mark II&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;1241633559&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;35&quot;,&quot;iso&quot;:&quot;2500&quot;,&quot;shutter_speed&quot;:&quot;0.033333333333333&quot;,&quot;title&quot;:&quot;&quot;}" data-image-title="Anna Schuleit Haber by John Solem" data-image-description="<p>Anna Schuleit Haber by John Solem</p>
+" data-medium-file="https://annaschuleit.files.wordpress.com/2012/03/anna-schuleit-painting.jpg?w=300" data-large-file="https://annaschuleit.files.wordpress.com/2012/03/anna-schuleit-painting.jpg?w=470" class="wp-image-318 size-large" src="2012/03/anna-schuleit-painting-w-470-h-339.jpg" alt="Anna Schuleit Haber by John Solem" width="470" height="339" srcset="2012/03/anna-schuleit-painting-w-470-h-339.jpg 470w, 2012/03/anna-schuleit-painting-w-150-h-108.jpg 150w, 2012/03/anna-schuleit-painting-w-300-h-216.jpg 300w, 2012/03/anna-schuleit-painting.jpg 700w" sizes="(max-width: 470px) 100vw, 470px"/></a><p id="caption-attachment-318" class="wp-caption-text">Anna Schuleit Haber, photo by John Solem</p></div>
+<div data-shortcode="caption" id="attachment_483" style="width: 480px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-483" data-attachment-id="483" data-permalink="https://anna-haber.com/room-for-five-2012/eastman-yellow/#main" data-orig-file="https://annaschuleit.files.wordpress.com/2012/03/eastman-yellow.jpg" data-orig-size="960,661" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;0&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;0&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;0&quot;,&quot;iso&quot;:&quot;0&quot;,&quot;shutter_speed&quot;:&quot;0&quot;,&quot;title&quot;:&quot;&quot;}" data-image-title="Anna Schuleit Haber: Room for Five" data-image-description="<p>Anna Schuleit Haber: Room for Five</p>
+" data-medium-file="https://annaschuleit.files.wordpress.com/2012/03/eastman-yellow.jpg?w=300" data-large-file="https://annaschuleit.files.wordpress.com/2012/03/eastman-yellow.jpg?w=470" class="wp-image-483 size-large" src="2012/03/eastman-yellow-w-470-h-323.jpg" alt="Anna Schuleit Haber: Room for Five" width="470" height="323" srcset="2012/03/eastman-yellow-w-470-h-323.jpg 470w, 2012/03/eastman-yellow-w-938-h-646.jpg 938w, 2012/03/eastman-yellow-w-150-h-103.jpg 150w, 2012/03/eastman-yellow-w-300-h-207.jpg 300w, 2012/03/eastman-yellow-w-768-h-529.jpg 768w" sizes="(max-width: 470px) 100vw, 470px"/><p id="caption-attachment-483" class="wp-caption-text">Anna Schuleit Haber: Room for Five</p></div>
+<div data-shortcode="caption" id="attachment_777" style="width: 480px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-777" data-attachment-id="777" data-permalink="https://anna-haber.com/about-anna-schuleit-haber/10415676_10152253783838300_2648281028989194507_n/#main" data-orig-file="https://annaschuleit.files.wordpress.com/2012/02/10415676_10152253783838300_2648281028989194507_n.jpg" data-orig-size="960,670" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;0&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;0&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;0&quot;,&quot;iso&quot;:&quot;0&quot;,&quot;shutter_speed&quot;:&quot;0&quot;,&quot;title&quot;:&quot;&quot;,&quot;orientation&quot;:&quot;0&quot;}" data-image-title="Anna Schuleit Haber: studio" data-image-description="<p>Anna Schuleit Haber: studio</p>
+" data-medium-file="https://annaschuleit.files.wordpress.com/2012/02/10415676_10152253783838300_2648281028989194507_n.jpg?w=300" data-large-file="https://annaschuleit.files.wordpress.com/2012/02/10415676_10152253783838300_2648281028989194507_n.jpg?w=470" class="wp-image-777 size-large" src="2012/02/10415676_10152253783838300_2648281028989194507_n-w-470-h-328.jpg" alt="Anna Schuleit Haber: studio" width="470" height="328" srcset="2012/02/10415676_10152253783838300_2648281028989194507_n-w-470-h-328.jpg 470w, 2012/02/10415676_10152253783838300_2648281028989194507_n-w-940-h-656.jpg 940w, 2012/02/10415676_10152253783838300_2648281028989194507_n-w-150-h-105.jpg 150w, 2012/02/10415676_10152253783838300_2648281028989194507_n-w-300-h-209.jpg 300w, 2012/02/10415676_10152253783838300_2648281028989194507_n-w-768-h-536.jpg 768w" sizes="(max-width: 470px) 100vw, 470px"/><p id="caption-attachment-777" class="wp-caption-text">Studio in Dumbo, Brooklyn</p></div>
+<div data-shortcode="caption" id="attachment_792" style="width: 480px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-792" data-attachment-id="792" data-permalink="https://anna-haber.com/about-anna-schuleit-haber/anna-schuleit-haber_mg_8549sm/#main" data-orig-file="https://annaschuleit.files.wordpress.com/2012/02/anna-schuleit-haber_mg_8549sm.jpg" data-orig-size="1080,849" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;11&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;Canon EOS 5D Mark II&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;1410005096&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;51&quot;,&quot;iso&quot;:&quot;6400&quot;,&quot;shutter_speed&quot;:&quot;0.0004&quot;,&quot;title&quot;:&quot;&quot;,&quot;orientation&quot;:&quot;1&quot;}" data-image-title="ANNA SCHULEIT HABER_MG_8549sm" data-image-description="<p>Anna Schuleit Haber: Couple with Blue Hands</p>
+" data-medium-file="https://annaschuleit.files.wordpress.com/2012/02/anna-schuleit-haber_mg_8549sm.jpg?w=300" data-large-file="https://annaschuleit.files.wordpress.com/2012/02/anna-schuleit-haber_mg_8549sm.jpg?w=470" class="wp-image-792 size-large" src="2012/02/anna-schuleit-haber_mg_8549sm-w-470-h-369.jpg" alt="Anna Schuleit Haber: Couple with Blue Hands" width="470" height="369" srcset="2012/02/anna-schuleit-haber_mg_8549sm-w-470-h-369.jpg 470w, 2012/02/anna-schuleit-haber_mg_8549sm-w-940-h-738.jpg 940w, 2012/02/anna-schuleit-haber_mg_8549sm-w-150-h-118.jpg 150w, 2012/02/anna-schuleit-haber_mg_8549sm-w-300-h-236.jpg 300w, 2012/02/anna-schuleit-haber_mg_8549sm-w-768-h-604.jpg 768w" sizes="(max-width: 470px) 100vw, 470px"/><p id="caption-attachment-792" class="wp-caption-text">Anna Schuleit Haber: Blue Hands</p></div>
+<div data-shortcode="caption" id="attachment_804" style="width: 480px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-804" data-attachment-id="804" data-permalink="https://anna-haber.com/about-anna-schuleit-haber/10683560_10152491702008300_4676130024607390797_o/#main" data-orig-file="https://annaschuleit.files.wordpress.com/2012/02/10683560_10152491702008300_4676130024607390797_o.jpg" data-orig-size="1296,626" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;0&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;0&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;0&quot;,&quot;iso&quot;:&quot;0&quot;,&quot;shutter_speed&quot;:&quot;0&quot;,&quot;title&quot;:&quot;&quot;,&quot;orientation&quot;:&quot;0&quot;}" data-image-title="Anna Schuleit Haber: The Voice Imitator" data-image-description="<p>Anna Schuleit Haber: The Voice Imitator</p>
+" data-medium-file="https://annaschuleit.files.wordpress.com/2012/02/10683560_10152491702008300_4676130024607390797_o.jpg?w=300" data-large-file="https://annaschuleit.files.wordpress.com/2012/02/10683560_10152491702008300_4676130024607390797_o.jpg?w=470" class="wp-image-804 size-large" src="2012/02/10683560_10152491702008300_4676130024607390797_o-w-470-h-227.jpg" alt="Anna Schuleit Haber: The Voice Imitator" width="470" height="227" srcset="2012/02/10683560_10152491702008300_4676130024607390797_o-w-470-h-227.jpg 470w, 2012/02/10683560_10152491702008300_4676130024607390797_o-w-940-h-454.jpg 940w, 2012/02/10683560_10152491702008300_4676130024607390797_o-w-150-h-72.jpg 150w, 2012/02/10683560_10152491702008300_4676130024607390797_o-w-300-h-145.jpg 300w, 2012/02/10683560_10152491702008300_4676130024607390797_o-w-768-h-371.jpg 768w" sizes="(max-width: 470px) 100vw, 470px"/><p id="caption-attachment-804" class="wp-caption-text">The Voice Imitator (progress shot), Blue Mountain Center, NY</p></div>
+<p>&nbsp;</p>
+<div id="jp-post-flair" class="sharedaddy sd-sharing-enabled"><div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-official sd-sharing"><div class="sd-content"><ul><li class="share-twitter"><a href="https://twitter.com/share" class="twitter-share-button" data-url="https://anna-haber.com/" data-text="About" data-via="schuleithaber" data-related="wordpressdotcom">Tweet</a></li><li class="share-facebook"><div class="fb-share-button" data-href="/" data-layout="button_count"></div></li><li class="share-linkedin"><div class="linkedin_button"><script type="in/share" data-url="https://anna-haber.com/" data-counter="right"></script></div></li><li class="share-email"><a rel="nofollow noopener noreferrer" data-shared="" class="share-email sd-button" href="/" target="_blank" title="Click to email this to a friend"><span>Email</span></a></li><li class="share-print"><a rel="nofollow noopener noreferrer" data-shared="" class="share-print sd-button" href="/#print" target="_blank" title="Click to print"><span>Print</span></a></li><li class="share-end"></li></ul></div></div></div></div>			</div><!-- .entry-content -->
+	<footer class="entry-meta">
+			</footer>
+</article><!-- #post-34 -->
+	<div id="comments" class="comments-area">
+</div><!-- #comments .comments-area -->
+			</div><!-- #content -->
+		</div><!-- #primary .site-content -->
+<div id="secondary" class="clear-fix" role="complementary">
+	<div class="widget-area" role="complementary">
+	<aside id="wpcom_instagram_widget-2" class="widget widget_wpcom_instagram_widget"><h1 class="widgettitle">Instagram</h1><div class="wpcom-instagram-images wpcom-instagram-columns-1">
+<a href="https://www.instagram.com/p/B-NSwgwFwWV/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/91136462_2846664295451688_7632088711344663125_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=_FT0P6k5wbwAX9PP8bB&amp;oh=9e8ccb230671245f76f2f5aef963c4ab&amp;oe=5EAD0ECF)"><span class="screen-reader-text">MassMoCA announced that 120 of its 165 employees will be laid off, effective April 11. &quot;Our entire line of earned revenue (which comprises about 70% of our budget) has been effectively wiped out, almost overnight” —Mass MoCA Director Joseph Thompson. 
+@massmoca is the permanent home of one of my most beloved Documenta 8/Martin-Gropius-Bau artworks of all time: &quot;Blitzschlag mit Lichtschein auf Hirsch&quot; 1958–85, (Lightning with Stag in its Glare) by Joseph Beuys. 
+A lighting strike indeed.
+Images: courtesy @massmoca</span></div></a>
+<a href="https://www.instagram.com/p/B95bD2gl1Xg/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/90091384_203685420902042_32882450099100003_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=r55jX4hllJoAX8bpHtM&amp;oh=d1d9493c9687f98ff6212077dc71d2f0&amp;oe=5EAD15A3)"><span class="screen-reader-text">personal space from above</span></div></a>
+<a href="https://www.instagram.com/p/B9u5dz0Fw8E/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/p640x640/89460884_204885910608315_3562183458814174208_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=xKr9iWI14lEAX8Ne454&amp;oh=011e97dee4d71d8c1fc0f7716e8c166f&amp;oe=5EAB3DA3)"><span class="screen-reader-text">Aside from using the 800,000 sq ft Union Station as our site, this has been our other creative home: our studio on campus. Now empty; everyone has gone home. Finnegan, who has always been part of my teaching, is feeling the sudden shift: come back soon, students! Safe & sound!🌿</span></div></a>
+<a href="https://www.instagram.com/p/B9shtFQF5N2/" target="_self"><div class="sq-bg-image" style="background-image: url(v/t51.2885-15/sh0.08/e35/s640x640/89611287_1280550745476314_6797386470852120651_n-_nc_ht-scontent.cdninstagram.com-_nc_ohc-VwiI4QDKLrAAX_xYTzN-oh-156d3baf50ea731b55626ffe8d184911-oe-5EAABA4E.jpg)"><span class="screen-reader-text">The past few days have doubtlessly been unfolding beyond simple description for all of us Earthlings. But images describe, too, so here is one snapshot of my dear, brave, inspiring students meeting in our 'classroom', at the end of our most productive week ever of creating site-specific works at and with Union Station. The same week that ended today with us all going off into different directions. KCAI closes for Spring Break, and beyond that... who knows. We will try to grow the work nonetheless, on the same arc of collaborative focus and immersion. But I already miss being and thinking in the same space together - so much. So much!! What a great group this is.💥</span></div></a>
+<a href="https://www.instagram.com/p/B9pMDdDFMVE/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/89317708_230075388170790_2252661654307971939_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=inE5vFNqPfYAX-BJKdg&amp;oh=0671dfc747ca7dd44322a95a0b44951a&amp;oe=5E851FF9)"><span class="screen-reader-text">To my students: See you on the other side of Social Distancing. Your teacher 
+#socialdistancing #art #teaching</span></div></a>
+<a href="https://www.instagram.com/p/B9o6XJtlPZY/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/p640x640/89405358_546954412590213_665499755769738949_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=Gmb-m4D290wAX8dPK5l&amp;oh=f6128d5a02d57e998dfe905e383f6da5&amp;oe=5EACAEB7)"><span class="screen-reader-text">Two of my amazingly brave students in a haunting performance piece this morning. ✨Union Station, Kansas City. — more documentation soon at @structureandspirit</span></div></a>
+<a href="https://www.instagram.com/p/B9SAFn2Fpo4/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/89391378_2248606938767129_8950437146116074326_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=cm2E_-1HQ5oAX9FwIIJ&amp;oh=7581c0dec9bdcb5e2de3b9423b4f7804&amp;oe=5EAB2BB4)"><span class="screen-reader-text">The former boiler room, Union Station.</span></div></a>
+<a href="https://www.instagram.com/p/B9P5O6HlJvY/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/p640x640/87622557_193219281943229_1608893518271766095_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=0NT5MxVSLdIAX-L3Sdi&amp;oh=e0e61de17dd20a794b6d78adbcd1af07&amp;oe=5EAD014B)"><span class="screen-reader-text">Our classroom -- Opened in 1914. Peaked in the 1940s. Abandoned in the 1980s. Revived since 1995. My students in the middle distance.</span></div></a>
+<a href="https://www.instagram.com/p/B9KVaAsFzEU/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/87775568_2651645991781574_6809243179745992710_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=nNZ0whgD_bIAX8rMiRy&amp;oh=5c65b3aff8f5ddb37b17ef4f802ec008&amp;oe=5EACC0DD)"><span class="screen-reader-text">From that same #voiceimitator series... inspired by the prose of #thomasbernhard</span></div></a>
+<a href="https://www.instagram.com/p/B9KVFfbFBbN/" target="_self"><div class="sq-bg-image" style="background-image: url(v/t51.2885-15/sh0.08/e35/s640x640/88378940_2379933268773644_8738690115180642247_n-_nc_ht-scontent.cdninstagram.com-_nc_ohc-ILy0t8ijjh8AX9a7fng-oh-341236dff09ee42a17a3d5dd20a93a6e-oe-5EAB9C14.jpg)"><span class="screen-reader-text">Newly framed📐
+From the #voiceimitator series, 30&quot; x 22&quot;
+Inspired by the prose of #thomasbernhard</span></div></a>
+<a href="https://www.instagram.com/p/B8pW61dl9Sb/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/p640x640/83585367_201838777684817_2056439489365142007_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=MEw6kI2AQCUAX8-9Ur7&amp;oh=13b64367fb4c57f851fb5c20bacd694c&amp;oe=5EACA2FE)"><span class="screen-reader-text"></span></div></a>
+<a href="https://www.instagram.com/p/B8cwAaLFOfz/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/p640x640/83957837_545291936334001_3382244583465979781_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=nMP_wLIi5mQAX9aQ3OM&amp;oh=3f16c559d039dc0572233b4df257297a&amp;oe=5EACF996)"><span class="screen-reader-text">Asked my daughters' nursery school group which fish we should get. Make a list, I suggested. This is what they wrote✏🐟🐠</span></div></a>
+<a href="https://www.instagram.com/p/B7tcgaHJPHB/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/p640x640/82489103_193360078480447_5458086038897880140_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=ph6bY8fLgQ4AX_v5u0N&amp;oh=0b5563275d7ab79c0aa439ad23505d1b&amp;oe=5EAC2CD7)"><span class="screen-reader-text"></span></div></a>
+<a href="https://www.instagram.com/p/B7rEen_p5tm/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/p640x640/83621943_2304543849847978_6445912165097859826_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=9sMomRyOIGIAX_lJIrQ&amp;oh=c69e861f0c172f0720a32041af024039&amp;oe=5EAB464A)"><span class="screen-reader-text">Inspiring place. Has a theme color💥</span></div></a>
+<a href="https://www.instagram.com/p/B7lmL9hlfQ6/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/p640x640/82993875_2729960290454996_490116098206281324_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=tXWw4ehNVhMAX9CUmnw&amp;oh=401c2b43a4cb10a713556ec8b78fb5e3&amp;oe=5EAD2C48)"><span class="screen-reader-text">Belly series, Aug - Dec 2019</span></div></a>
+<a href="https://www.instagram.com/p/B7bcz8_FXmD/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/p640x640/82108472_174745273900863_5072451946869786922_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=tFApMCD-oLYAX-ZA9Mm&amp;oh=b347b8be54abf4d69bdba1bed3ececdf&amp;oe=5EAADA84)"><span class="screen-reader-text"></span></div></a>
+<a href="https://www.instagram.com/p/B7bB-v8lZOc/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/82715107_831413457283971_1373530297634578339_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=2g8bUbQJHtoAX8hZ0_p&amp;oh=fe9c419fe197f6cd0056d3f94081f2a7&amp;oe=5EABE974)"><span class="screen-reader-text">Just a few days here. Perhaps weeks.</span></div></a>
+<a href="https://www.instagram.com/p/B7TJdnnFGvM/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/p640x640/83706057_500974240827563_1419894015896162679_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=AocE3oI_fssAX8vd7wH&amp;oh=f2b74b26b248de433429cbee9a67b0bf&amp;oe=5EAC5139)"><span class="screen-reader-text">Warmer than Brooklyn. Warmer than the Alps.</span></div></a>
+<a href="https://www.instagram.com/p/B7KKOqElelR/" target="_self"><div class="sq-bg-image" style="background-image: url(https://scontent.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/82090525_1457471667751991_7809564091458745518_n.jpg?_nc_ht=scontent.cdninstagram.com&amp;_nc_ohc=QUHvxeDuZO8AX8QuU-s&amp;oh=53f22e745d89da6b8162ee3463d4cd3f&amp;oe=5EAA9F88)"><span class="screen-reader-text">Dumbo in the rain all over again? Wow. It's Kansas City. 1890s brick warehouses revived by artists. ✂🖌📐 #dumbo #brooklyn in the #prairie</span></div></a>
+<a href="https://www.instagram.com/p/B7KHrx8ln5J/" target="_self"><div class="sq-bg-image" style="background-image: url(v/t51.2885-15/sh0.08/e35/s640x640/80640219_203038910732298_298427364771995683_n-_nc_ht-scontent.cdninstagram.com-_nc_ohc-nfSi7MtU5qIAX-DWwT6-oh-0b4cc91422535a4e211fb80295ded251-oe-5EABC9B3.jpg)"><span class="screen-reader-text">Roads converging. A semester of guest-teaching at @kcartinstitute begins soon. Small-world overlaps and serendipities abound🌿. #westbottoms</span></div></a>
+</div>
+</aside><aside id="top-posts-2" class="widget widget_top-posts"><h1 class="widgettitle">Read more:</h1><ul>				<li>
+					<a href="/" class="bump-view" data-bump-view="tp" aria-current="page">About</a>					</li>
+								<li>
+					<a href="contact/" class="bump-view" data-bump-view="tp">Contact</a>					</li>
+				</ul></aside><aside id="blog-stats-2" class="widget widget_blog-stats"><h1 class="widgettitle">Website Traffic:</h1>		<ul>
+			<li>156,943 visitors since March 5, 2012.</li>
+		</ul>
+		</aside>
+	</div><!-- .widget-area -->
+</div><!-- #secondary -->
+<div id="tertiary" class="widget-area" role="complementary">
+	<aside id="twitter_timeline-2" class="widget widget_twitter_timeline"><h1 class="widgettitle">Anna Schuleit Haber on Twitter</h1><a class="twitter-timeline" data-width="220" data-theme="light" data-border-color="#e8e8e8" data-tweet-limit="1" data-lang="EN" data-partner="jetpack" data-chrome="noborders noscrollbar transparent" href="https://twitter.com/schuleithaber" href="https://twitter.com/schuleithaber">My Tweets</a></aside><aside id="facebook-likebox-4" class="widget widget_facebook_likebox"><h1 class="widgettitle"><a href="https://www.facebook.com/pages/Anna-Schuleit-Haber/137495968299">Village Square</a></h1>		<div id="fb-root"></div>
+		<div class="fb-page" data-href="https://www.facebook.com/pages/Anna-Schuleit-Haber/137495968299" data-width="233" data-height="150" data-hide-cover="true" data-show-facepile="false" data-tabs="false" data-hide-cta="false" data-small-header="false">
+		<div class="fb-xfbml-parse-ignore"><blockquote cite="https://www.facebook.com/pages/Anna-Schuleit-Haber/137495968299"><a href="https://www.facebook.com/pages/Anna-Schuleit-Haber/137495968299">Village Square</a></blockquote></div>
+		</div>
+		</aside><aside id="blog_subscription-2" class="widget widget_blog_subscription jetpack_subscription_widget"><h1 class="widgettitle"><label for="subscribe-field">Email Updates</label></h1>
+            <form action="https://subscribe.wordpress.com/" method="post" accept-charset="utf-8" id="subscribe-blog">
+									<p>Enter your email address and receive occasional invitations and updates by email. Your information will never be shared with third parties.</p>
+<p>Join 404 other followers</p>
+                    <p><input type="text" name="email" style="width: 95%; padding: 1px 2px" placeholder="Enter your email address" value="" id="subscribe-field"/></p>
+                <p>
+                    <input type="hidden" name="action" value="subscribe"/>
+                    <input type="hidden" name="blog_id" value="32996288"/>
+                    <input type="hidden" name="source" value="https://anna-haber.com/"/>
+                    <input type="hidden" name="sub-type" value="widget"/>
+                    <input type="hidden" name="redirect_fragment" value="blog_subscription-2"/>
+					<input type="hidden" id="_wpnonce" name="_wpnonce" value="6e786ff42a"/>                    <button type="submit">
+	                    Follow                    </button>
+                </p>
+            </form>
+</aside>
+</div><!-- #secondary .widget-area -->
+	</div><!-- #main -->
+	<div id="supplementary" class="clear-fix three">
+		<div id="footer-sidebar-one" class="widget-area" role="complementary">
+		<aside id="top-posts-4" class="widget widget_top-posts"><h1 class="widgettitle">Read more:</h1><ul>				<li>
+					<a href="/" class="bump-view" data-bump-view="tp" aria-current="page">About</a>					</li>
+								<li>
+					<a href="contact/" class="bump-view" data-bump-view="tp">Contact</a>					</li>
+				</ul></aside>	</div><!-- #first .widget-area -->
+		<div id="footer-sidebar-three" class="widget-area" role="complementary">
+		<aside id="facebook-likebox-3" class="widget widget_facebook_likebox"><h1 class="widgettitle"><a href="https://www.facebook.com/pages/Anna-Schuleit/137495968299">Anna Schuleit Haber on Facebook</a></h1>		<div id="fb-root"></div>
+		<div class="fb-page" data-href="https://www.facebook.com/pages/Anna-Schuleit/137495968299" data-width="233" data-height="400" data-hide-cover="false" data-show-facepile="false" data-tabs="false" data-hide-cta="false" data-small-header="false">
+		<div class="fb-xfbml-parse-ignore"><blockquote cite="https://www.facebook.com/pages/Anna-Schuleit/137495968299"><a href="https://www.facebook.com/pages/Anna-Schuleit/137495968299">Anna Schuleit Haber on Facebook</a></blockquote></div>
+		</div>
+		</aside>	</div><!-- #third .widget-area -->
+		<div id="footer-sidebar-four" class="widget-area" role="complementary">
+		<aside id="blog_subscription-3" class="widget widget_blog_subscription jetpack_subscription_widget"><h1 class="widgettitle"><label for="subscribe-field-2">Email Updates</label></h1>
+            <form action="https://subscribe.wordpress.com/" method="post" accept-charset="utf-8" id="subscribe-blog-2">
+									<p>Enter your email address and receive occasional invitations and updates by email. Your information will never be shared with third parties.</p>
+<p>Join 404 other followers</p>
+                    <p><input type="text" name="email" style="width: 95%; padding: 1px 2px" placeholder="Enter your email address" value="" id="subscribe-field-2"/></p>
+                <p>
+                    <input type="hidden" name="action" value="subscribe"/>
+                    <input type="hidden" name="blog_id" value="32996288"/>
+                    <input type="hidden" name="source" value="https://anna-haber.com/"/>
+                    <input type="hidden" name="sub-type" value="widget"/>
+                    <input type="hidden" name="redirect_fragment" value="blog_subscription-3"/>
+					<input type="hidden" id="_wpnonce" name="_wpnonce" value="6e786ff42a"/>                    <button type="submit">
+	                    Follow                     </button>
+                </p>
+            </form>
+</aside><aside id="blog-stats-3" class="widget widget_blog-stats"><h1 class="widgettitle">Website Traffic:</h1>		<ul>
+			<li>156,943 visitors since March 5, 2012.</li>
+		</ul>
+		</aside>	</div><!-- #fourth .widget-area -->
+	</div><!-- #supplementary -->
+	<footer id="colophon" class="site-footer clear-fix" role="contentinfo">
+		<div class="site-info">
+						<a href="https://wordpress.com/?ref=footer_custom_com" rel="nofollow">WordPress.com</a>.
+					</div><!-- .site-info -->
+			</footer><!-- .site-footer .site-footer -->
+</div><!-- #page .hfeed .site -->
+<!--  -->
+	<div style="display:none">
+	</div>
+	<div id="carousel-reblog-box">
+		<form action="#" name="carousel-reblog">
+			<textarea id="carousel-reblog-content" name="carousel-reblog-content" placeholder="Add your thoughts here... (optional)"></textarea>
+			<label for="carousel-reblog-to-blog-id" id="carousel-reblog-lblogid">Post to</label>
+			<select name="carousel-reblog-to-blog-id" id="carousel-reblog-to-blog-id">
+						</select>
+			<div class="submit">
+				<span class="canceltext"><a href="#" class="cancel">Cancel</a></span>
+				<input type="submit" name="carousel-reblog-submit" class="button" id="carousel-reblog-submit" value="Reblog Post"/>
+				<input type="hidden" id="carousel-reblog-blog-id" value="32996288"/>
+				<input type="hidden" id="carousel-reblog-blog-url" value="https://anna-haber.com"/>
+				<input type="hidden" id="carousel-reblog-blog-title" value="Anna Schuleit Haber"/>
+				<input type="hidden" id="carousel-reblog-post-url" value=""/>
+				<input type="hidden" id="carousel-reblog-post-title" value=""/>
+			</div>
+			<input type="hidden" id="_wpnonce" name="_wpnonce" value="9b5c8e7c5d"/><input type="hidden" name="_wp_http_referer" value="/"/>		</form>
+		<div class="arrow"></div>
+	</div>
+	<script type="text/javascript">
+		window.WPCOM_sharing_counts = {"https:\/\/anna-haber.com\/":34};
+	</script>
+							<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+			<div id="fb-root"></div>
+			<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&appId=249643311490&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
+			<script>
+			jQuery( document.body ).on( 'post-load', function() {
+				if ( 'undefined' !== typeof FB ) {
+					FB.XFBML.parse();
+				}
+			} );
+			</script>
+			<script type="text/javascript">
+			jQuery( document ).ready( function() {
+				jQuery.getScript( 'https://platform.linkedin.com/in.js?async=true', function success() {
+					IN.init();
+				});
+			});
+			jQuery( document.body ).on( 'post-load', function() {
+				if ( typeof IN != 'undefined' )
+					IN.parse();
+			});
+			</script>	<div id="sharing_email" style="display: none;">
+		<form action="/" method="post">
+			<label for="target_email">Send to Email Address</label>
+			<input type="email" name="target_email" id="target_email" value=""/>
+				<label for="source_name">Your Name</label>
+				<input type="text" name="source_name" id="source_name" value=""/>
+				<label for="source_email">Your Email Address</label>
+				<input type="email" name="source_email" id="source_email" value=""/>
+						<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" title="This field is for validation and should not be changed"/>
+			<div class="g-recaptcha" data-sitekey="6LcmyE0UAAAAALID28yVNg7pFCodGaArJzHitez_" data-theme="light" data-type="image" data-tabindex="0"></div>
+			<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=en" async></script>
+			<img style="float: right; display: none" class="loading" src="wp-content/mu-plugins/post-flair/sharing/images/loading.gif" alt="loading" width="16" height="16"/>
+			<input type="submit" value="Send Email" class="sharing_send"/>
+			<a rel="nofollow" href="#cancel" class="sharing_cancel" role="button">Cancel</a>
+			<div class="errors errors-1" style="display: none;">
+				Post was not sent - check your email addresses!			</div>
+			<div class="errors errors-2" style="display: none;">
+				Email check failed, please try again			</div>
+			<div class="errors errors-3" style="display: none;">
+				Sorry, your blog cannot share posts by email.			</div>
+		</form>
+	</div>
+<link rel="stylesheet" id="all-css-0-2" href="_static/--/wp-content/plugins/gutenberg-blocks/jetpack-layout-grid/blocks/front_css-/wp-content/mu-plugins/carousel/jetpack-carousel-m-1583834955j-cssminify-yes.css" type="text/css" media="all"/>
+<script>
+var jpfbembed = {"appid":"249643311490","locale":"en_US"};
+</script>
+<script>
+var actionbardata = {"siteID":"32996288","siteName":"Anna Schuleit Haber","siteURL":"https:\/\/anna-haber.com","icon":"<img alt='' src='https:\/\/secure.gravatar.com\/blavatar\/0b96bcc726611bb19503cb176eb3882d?s=50&d=https%3A%2F%2Fs2.wp.com%2Fi%2Flogo%2Fwpcom-gray-white.png' class='avatar avatar-50' height='50' width='50' \/>","canManageOptions":"","canCustomizeSite":"","isFollowing":"","themeSlug":"pub\/oxygen","signupURL":"https:\/\/wordpress.com\/start\/","loginURL":"https:\/\/wordpress.com\/log-in?redirect_to=https%3A%2F%2Fanna-haber.com%2F&signup_flow=account&domain=anna-haber.com","themeURL":"","xhrURL":"/","nonce":"6567236bdc","isSingular":"1","isFolded":"","isLoggedIn":"","isMobile":"","subscribeNonce":"<input type=\"hidden\" id=\"_wpnonce\" name=\"_wpnonce\" value=\"6e786ff42a\" \/>","referer":"https:\/\/anna-haber.com\/","canFollow":"","feedID":"45466481","statusMessage":"","customizeLink":"https:\/\/annaschuleit.wordpress.com\/wp-admin\/customize.php?url=https%3A%2F%2Fannaschuleit.wordpress.com%2F","postID":"34","shortlink":"https:\/\/wp.me\/P2erQc-y","canEditPost":"","editLink":"https:\/\/wordpress.com\/page\/anna-haber.com\/34","statsLink":"https:\/\/wordpress.com\/stats\/post\/34\/anna-haber.com","i18n":{"view":"View site","follow":"Follow","following":"Following","edit":"Edit","login":"Log in","signup":"Sign up","customize":"Customize","report":"Report this content","themeInfo":"Get theme: Oxygen","shortlink":"Copy shortlink","copied":"Copied","followedText":"New posts from this site will now appear in your <a href=\"https:\/\/wordpress.com\/read\">Reader<\/a>","foldBar":"Collapse this bar","unfoldBar":"Expand this bar","editSubs":"Manage subscriptions","viewReader":"View site in Reader","viewReadPost":"View post in Reader","subscribe":"Sign me up","enterEmail":"Enter your email address","followers":"Join 404 other followers","alreadyUser":"Already have a WordPress.com account? <a href=\"https:\/\/wordpress.com\/log-in?redirect_to=https%3A%2F%2Fanna-haber.com%2F&signup_flow=account&domain=anna-haber.com\">Log in now.<\/a>","stats":"Stats"}};
+</script>
+<script>
+var jetpackCarouselStrings = {"widths":[370,700,1000,1200,1400,2000],"is_logged_in":"","lang":"en","ajaxurl":"/","nonce":"92add5a957","display_exif":"1","display_geo":"1","single_image_gallery":"1","single_image_gallery_media_file":"","background_color":"black","comment":"Comment","post_comment":"Post Comment","write_comment":"Write a Comment...","loading_comments":"Loading Comments...","download_original":"View full size <span class=\"photo-size\">{0}<span class=\"photo-size-times\">\u00d7<\/span>{1}<\/span>","no_comment_text":"Please be sure to submit some text with your comment.","no_comment_email":"Please provide an email address to comment.","no_comment_author":"Please provide your name to comment.","comment_post_error":"Sorry, but there was an error posting your comment. Please try again later.","comment_approved":"Your comment was approved.","comment_unapproved":"Your comment is in moderation.","camera":"Camera","aperture":"Aperture","shutter_speed":"Shutter Speed","focal_length":"Focal Length","copyright":"Copyright","comment_registration":"0","require_name_email":"1","login_url":"https:\/\/annaschuleit.wordpress.com\/wp-login.php?redirect_to=https%3A%2F%2Fanna-haber.com%2F","blog_id":"32996288","meta_data":["camera","aperture","shutter_speed","focal_length","copyright"],"local_comments_commenting_as":"<fieldset><label for=\"email\">Email (Required)<\/label> <input type=\"text\" name=\"email\" class=\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\" id=\"jp-carousel-comment-form-email-field\" \/><\/fieldset><fieldset><label for=\"author\">Name (Required)<\/label> <input type=\"text\" name=\"author\" class=\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\" id=\"jp-carousel-comment-form-author-field\" \/><\/fieldset><fieldset><label for=\"url\">Website<\/label> <input type=\"text\" name=\"url\" class=\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\" id=\"jp-carousel-comment-form-url-field\" \/><\/fieldset>","reblog":"Reblog","reblogged":"Reblogged","reblog_add_thoughts":"Add your thoughts here... (optional)","reblogging":"Reblogging...","post_reblog":"Post Reblog","stats_query_args":"blog=32996288&v=wpcom&tz=-4&user_id=0&subd=annaschuleit","is_public":"1","reblog_enabled":""};
+</script>
+<script>
+var sharing_js_options = {"lang":"en","counts":"1","is_stats_active":"1"};
+</script>
+<script type="text/javascript" src="https://s0.wp.com/_static/??-eJydU+1ugzAMfKGlEZvouh/THmUKiaGm+WBxUsrbz7Sl6jqKuv0By/bd2WeQfSd08Al8ki1JA3vU0B1WLT1JLqHXNhugYw0pyT14E+JY6oIdarR25dBP7RNTZ3ODnmSdrRWECQQYTOgbcarI9Uvx8rp+fpOVDZwMlEhwqHdnFYT+/5zAQybGZZ9M6P2Z+Pik2+KtStqC43W7XMlwGBrw4+bkFGs68Pmh9vYrQxxWetAWrt25NhOdaoBsUAbMvR6nKHgmmjF4SfcH9SO4Y/K202UxOd5C6hQ7+MnDyVppqELYCXDVb/57qNRjShBFQgcW/ZKaMryvqFQc92cMRyLsIUYcbbnk/siQIs9CSyCdMPgRdInmbkLd/K1O3k8nuO6a0dIqhkxgJ4/ElFjAjP+IqK3CKGmrIn/305tBH+69KDdlUZabYt1+A5pEbZI="></script>
+<script type="text/javascript">
+( 'fetch' in window ) || document.write( '<script src="https://s0.wp.com/wp-includes/js/dist/vendor/wp-polyfill-fetch.min.js?m=1573572739h&#038;ver=3.0.0"></scr' + 'ipt>' );( document.contains ) || document.write( '<script src="https://s1.wp.com/wp-includes/js/dist/vendor/wp-polyfill-node-contains.min.js?m=1540208548h&#038;ver=3.26.0-0"></scr' + 'ipt>' );( window.FormData && window.FormData.prototype.keys ) || document.write( '<script src="https://s1.wp.com/wp-includes/js/dist/vendor/wp-polyfill-formdata.min.js?m=1550600082h&#038;ver=3.0.12"></scr' + 'ipt>' );( Element.prototype.matches && Element.prototype.closest ) || document.write( '<script src="https://s2.wp.com/wp-includes/js/dist/vendor/wp-polyfill-element-closest.min.js?m=1540208548h&#038;ver=2.0.2"></scr' + 'ipt>' );
+( 'URL' in window ) || document.write( '<script src="https://s0.wp.com/wp-content/plugins/gutenberg-core/7.7.1/vendor/wp-polyfill-url.f434e7c5.js?m=1585297571h&#038;ver=3.42.0"></scr' + 'ipt>' );
+( window.DOMRect ) || document.write( '<script src="https://s1.wp.com/wp-content/plugins/gutenberg-core/7.7.1/vendor/wp-polyfill-dom-rect.7e21c103.js?m=1585297571h&#038;ver=3.42.0"></scr' + 'ipt>' );
+</script>
+<script type="text/javascript">
+var windowOpen;
+			jQuery( document.body ).on( 'click', 'a.share-facebook', function() {
+				// If there's another sharing window open, close it.
+				if ( 'undefined' !== typeof windowOpen ) {
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery( this ).attr( 'href' ), 'wpcomfacebook', 'menubar=1,resizable=1,width=600,height=400' );
+				return false;
+			});
+</script>
+<script type="text/javascript">
+// <![CDATA[
+(function() {
+try{
+  if ( window.external &&'msIsSiteMode' in window.external) {
+    if (window.external.msIsSiteMode()) {
+      var jl = document.createElement('script');
+      jl.type='text/javascript';
+      jl.async=true;
+      jl.src='/';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(jl, s);
+    }
+  }
+}catch(e){}
+})();
+// ]]>
+</script><script src="w-61.js" type="text/javascript" async defer></script>
+<script type="text/javascript">
+_tkq = window._tkq || [];
+_stq = window._stq || [];
+_tkq.push(['storeContext', {'blog_id':'32996288','blog_tz':'-4','user_lang':'en','blog_lang':'en','user_id':'0'}]);
+_stq.push(['view', {'blog':'32996288','v':'wpcom','tz':'-4','user_id':'0','post':'34','subd':'annaschuleit'}]);
+_stq.push(['extra', {'crypt':'UE40eW5QN0p8M2Y/RE1TaVhzUzFMbjdWNHpwZGhTayxPSUFCMGNrd29+Smw0TDhnZmRTK0hlRi9QSGh6bi9GXVhBJWIlZlR5U1JMLU8/MkNtblkvY1dkVGJJUnZvbyZ2U0g9LzAsWVFHW28/U0JfcD9SNVZobUxCQ0cwP0RXZiVmSVRZX2VPdjJrVG85cTh+ejQsS3M9Vz1fVj9fNW1yQWUucS4sWzVMZ0hhUE1PSEEsRFp1eV0wUm1xak4uTFZqZS49Tk5LeXBtUTZpMlksdCVDMlJrLDd8UFNxMi4zVG4tTFJbUWpYSixKVm85Jkd8UmMlLXNOPW1OQS1JQ2xkcTVMflM3LT8vN0VmWU05U3FGdmlCTmt0N25bUThGZ25sRXFxZ0tKJW1GbWlPcmx5TG9ySUluZmJDUTBwZHxZV0wvdEk/TWpdb0dfeVZQNE8tQS58SVtNdA=='}]);
+_stq.push([ 'clickTrackerInit', '32996288', '34' ]);
+	</script>
+<noscript><img src="b-v-noscript.gif" style="height:0px;width:0px;overflow:hidden" alt=""/></noscript>
+<script>
+if ( 'object' === typeof wpcom_mobile_user_agent_info ) {
+	wpcom_mobile_user_agent_info.init();
+	var mobileStatsQueryString = "";
+	if( false !== wpcom_mobile_user_agent_info.matchedPlatformName )
+		mobileStatsQueryString += "&x_" + 'mobile_platforms' + '=' + wpcom_mobile_user_agent_info.matchedPlatformName;
+	if( false !== wpcom_mobile_user_agent_info.matchedUserAgentName )
+		mobileStatsQueryString += "&x_" + 'mobile_devices' + '=' + wpcom_mobile_user_agent_info.matchedUserAgentName;
+	if( wpcom_mobile_user_agent_info.isIPad() )
+		mobileStatsQueryString += "&x_" + 'ipad_views' + '=' + 'views';
+	if( "" != mobileStatsQueryString ) {
+		new Image().src = document.location.protocol + 'https://pixel.wp.com/g.gif?v=wpcom-no-pv' + mobileStatsQueryString + '&baba=' + Math.random();
+	}
+}
+</script>
+<center><font size="2">This is a free demo result from the Wayback Machine Downloader. <a href="http://www.waybackmachinedownloader.com/en/">Click here</a> to download the full version.</font></center></body>
+</html>
